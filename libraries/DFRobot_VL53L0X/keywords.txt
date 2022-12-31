@@ -1,0 +1,36 @@
+#######################################
+# Syntax Map For DFRobot_VL53L0X
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DFRobot_VL53L0X	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+setMode	KEYWORD2
+start KEYWORD2
+stop	KEYWORD2
+getDistance	KEYWORD2
+getAmbientCount	KEYWORD2
+getSignalCount	KEYWORD2
+getStatus	KEYWORD2
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+eDISABLE	LITERAL1
+eENABLE	LITERAL1
+eHigh	LITERAL1
+eLow	LITERAL1
+eSingle	LITERAL1
+eContinuous	LITERAL1
