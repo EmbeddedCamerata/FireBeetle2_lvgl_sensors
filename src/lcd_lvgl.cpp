@@ -1,7 +1,7 @@
 #include "../include/lcd_lvgl.h"
 #include "../include/sht4x.h"
 #include "../include/vl53l0x.h"
-#include <TFT_eSPI.h>
+#include "TFT_eSPI.h"
 #include "lvgl.h"
 
 #define BTN_PIN 27
@@ -51,17 +51,18 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
     lv_disp_flush_ready(disp);
 }
 
-void lvgl_user_setup() {
+void lvgl_user_setup()
+{
     lv_init();
     tft.begin();
     tft.setRotation(1);
-	
-	lv_disp_draw_buf_init(&draw_buf, buf, NULL, TFT_HEIGHT * 10);
 
-	/*Initialize the display*/
+    lv_disp_draw_buf_init(&draw_buf, buf, NULL, TFT_HEIGHT * 10);
+
+    /*Initialize the display*/
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
-    
+
     /*Change the following line to your display resolution*/
     disp_drv.hor_res = TFT_HEIGHT;
     disp_drv.ver_res = TFT_WIDTH;
@@ -70,7 +71,8 @@ void lvgl_user_setup() {
     lv_disp_drv_register(&disp_drv);
 }
 
-void lcd_basic_layout() {
+void lcd_basic_layout()
+{
     tof_data_chart = lv_chart_create(lv_scr_act());
     lv_obj_set_size(tof_data_chart, 260, 140);
     lv_obj_align(tof_data_chart, LV_ALIGN_CENTER, 20, 20);
@@ -79,11 +81,11 @@ void lcd_basic_layout() {
 
     tof_data_series = lv_chart_add_series(tof_data_chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
     lv_chart_set_point_count(tof_data_chart, 10);
-    
+
     lv_chart_set_axis_tick(tof_data_chart, LV_CHART_AXIS_PRIMARY_X, 8, 4, 10, 1, true, 30);
     lv_chart_set_axis_tick(tof_data_chart, LV_CHART_AXIS_PRIMARY_Y, 8, 4, 3, 5, true, 60);
     lv_chart_set_range(tof_data_chart, LV_CHART_AXIS_PRIMARY_Y, 0, 2000);
-    
+
     lv_obj_add_event_cb(tof_data_chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
     lv_chart_refresh(tof_data_chart);
 
@@ -126,67 +128,80 @@ void lcd_basic_layout() {
     btn_state_timer = lv_timer_create(btn_pressed_check, 30, NULL);
 }
 
-static void temperature_update(lv_timer_t *timer) {
+static void temperature_update(lv_timer_t *timer)
+{
     sht40_get_measured(&sht4x_humidity, &sht4x_temp);
     lv_label_set_text_fmt(temp_label, "Temp: %.1f °C", sht4x_temp.temperature);
     lv_label_set_text_fmt(humd_label, "Humidity: %.1f% rH", sht4x_humidity.relative_humidity);
 }
 
-static void tof_update(lv_timer_t *timer) {
+static void tof_update(lv_timer_t *timer)
+{
     float tof_new_data = vl53l0x_get_measured();
 
     lv_chart_set_next_value(tof_data_chart, tof_data_series, (int)tof_new_data);
     lv_chart_refresh(tof_data_chart);
 
     lv_label_set_text_fmt(y_next_value_label, "%.1f", tof_new_data);
-    if (tof_new_data > 1000) {
+    if (tof_new_data > 1000)
+    {
         lv_obj_align_to(y_next_value_label, tof_data_chart, LV_ALIGN_OUT_RIGHT_MID, -40, 10);
     }
-    else {
+    else
+    {
         lv_obj_align_to(y_next_value_label, tof_data_chart, LV_ALIGN_OUT_RIGHT_MID, -40, -10);
     }
 }
 
-static void btn_pressed_check(lv_timer_t *timer) {
+static void btn_pressed_check(lv_timer_t *timer)
+{
     int reading = digitalRead(BTN_PIN);
 
-    if (reading != last_btn_state) {
-        if (reading == LOW) {
-            if (lv_obj_has_state(tof_measuring_sw, LV_STATE_CHECKED)) {
+    if (reading != last_btn_state)
+    {
+        if (reading == LOW)
+        {
+            if (lv_obj_has_state(tof_measuring_sw, LV_STATE_CHECKED))
+            {
                 lv_obj_clear_state(tof_measuring_sw, LV_STATE_CHECKED);
                 vl53l0x_stop();
                 digitalWrite(LED_BUILTIN, LOW);
                 lv_timer_pause(vl53l0x_update_timer);
                 lv_label_set_text(btn_label, "TOF idle");
             }
-            else {
+            else
+            {
                 lv_obj_add_state(tof_measuring_sw, LV_STATE_CHECKED);
                 vl53l0x_start();
                 digitalWrite(LED_BUILTIN, HIGH);
                 lv_timer_resume(vl53l0x_update_timer);
                 lv_label_set_text(btn_label, "TOF measuring");
-            } 
+            }
         }
     }
     last_btn_state = reading;
 }
 
-static void draw_event_cb(lv_event_t *e) {
+static void draw_event_cb(lv_event_t *e)
+{
     const char *x_index[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
     lv_obj_draw_part_dsc_t *dsc = lv_event_get_draw_part_dsc(e);
 
     if (!lv_obj_draw_part_check_type(dsc, &lv_chart_class, LV_CHART_DRAW_PART_TICK_LABEL))
         return;
 
-    if (dsc->id == LV_CHART_AXIS_PRIMARY_X && dsc->text) {
+    if (dsc->id == LV_CHART_AXIS_PRIMARY_X && dsc->text)
+    {
         lv_snprintf(dsc->text, dsc->text_length, "%s", x_index[dsc->value]);
     }
 }
 
-lv_coord_t find_min_in_array(lv_coord_t array[]) {
+lv_coord_t find_min_in_array(lv_coord_t array[])
+{
     lv_coord_t val = array[0];
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++)
+    {
         if (val < array[i])
             val = array[i];
     }
@@ -194,10 +209,12 @@ lv_coord_t find_min_in_array(lv_coord_t array[]) {
     return val;
 }
 
-lv_coord_t find_max_in_array(lv_coord_t array[]) {
+lv_coord_t find_max_in_array(lv_coord_t array[])
+{
     lv_coord_t val = array[0];
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++)
+    {
         if (val > array[i])
             val = array[i];
     }
