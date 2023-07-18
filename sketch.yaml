@@ -1,0 +1,14 @@
+profiles:
+  FireBeetle2_lvgl_sensors:
+    notes: See https://arduino.github.io/arduino-cli/0.33/sketch-project-file/ for usages and details.
+    fqbn: DFRobot:esp32:esp32-e
+    platforms:
+    - platform: DFRobot:esp32 (0.2.1)
+      platform_index_url: http://download.dfrobot.top/FireBeetle/package_DFRobot_index.json
+    libraries:
+    - Adafruit SHT4x Library (1.0.3)
+    - Adafruit BusIO (1.13.0)
+    - Adafruit Unified Sensor (1.1.9)
+    - DFRobot_VL53L0X (1.0.0)
+    - TFT_eSPI (2.4.79)
+    - lvgl (8.3.4)
